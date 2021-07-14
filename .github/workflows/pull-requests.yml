@@ -1,0 +1,63 @@
+name: Run tests on PR
+on: pull_request
+
+jobs:
+  ci:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ 3.8, 3.9 ]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        include:
+          - os: ubuntu-latest
+            cache-path: ~/.cache/pip
+          - os: macos-latest
+            cache-path: ~/Library/Caches/pip
+          - os: windows-latest
+            cache-path: ~\AppData\Local\pip\Cache
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Setup poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.1.7
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ matrix.cache-path }}
+          # We only want to clear the cache if the dependency specification has changed
+          key: ${{ matrix.os }}-pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ matrix.os }}-pip-
+      - name: Install dependencies
+        run: poetry install
+      - name: Lint with Black
+        run: poetry run black ./
+      - name: Run tests
+        run: >-
+          poetry run pytest
+            -o junit_family=xunit2
+            --junitxml=pytest/test-results-${{ matrix.python-version }}.xml
+            --cov-report=xml:pytest/test-coverage-${{ matrix.python-version }}.xml
+            --cov=s3_path_wrangler
+            --verbose
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results-${{ matrix.python-version }}
+          path: pytest/test-results-${{ matrix.python-version }}.xml
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}
+      - name: Upload coverage results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-coverage-${{ matrix.python-version }}
+          path: pytest/test-coverage-${{ matrix.python-version }}.xml
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}

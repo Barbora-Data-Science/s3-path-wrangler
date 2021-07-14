@@ -1,0 +1,38 @@
+name: Upload package on release
+on:
+  release:
+    types: [ published ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Setup poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.1.7
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ matrix.cache-path }}
+          # We only want to clear the cache if the dependency specification has changed
+          key: ${{ matrix.os }}-pip-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            ${{ matrix.os }}-pip-
+      - name: Install dependencies
+        run: poetry install
+      - name: Build package
+        run: poetry build
+      - name: Test Publishing
+        env:
+          PYPI_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: poetry publish -n --repository test.pypi --username __token__ --password $PYPI_TOKEN
+      - name: Publish to PyPi
+        env:
+          PYPI_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: poetry publish -n --repository pypi --username __token__ --password $PYPI_TOKEN
