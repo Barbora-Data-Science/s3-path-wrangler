@@ -190,7 +190,9 @@ class S3Path:
         """
         if self.is_absolute:
             return "/".join(self.parts[1:])
-        raise UnknownBucketError("Cannot compute the key, bucket of a relative path is not defined")
+        raise UnknownBucketError(
+            "Cannot compute the key, bucket of a relative path is not defined"
+        )
 
     @property
     def name(self) -> str:
@@ -255,4 +257,7 @@ class S3Path:
             True if both paths refer to the same location, False otherwise.
         """
         other_path = S3Path(other) if isinstance(other, str) else other
-        return self.parts == other_path.parts and self.is_absolute == other_path.is_absolute
+        return (
+            self.parts == other_path.parts
+            and self.is_absolute == other_path.is_absolute
+        )

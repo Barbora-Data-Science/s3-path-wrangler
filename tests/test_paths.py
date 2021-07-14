@@ -29,7 +29,9 @@ def test_when_s3_path_is_constructed_from_parts_then_relative_path_is_calculated
     "path_parts,expected_path",
     [
         pytest.param(["bucket"], "s3://bucket", id="only_folder"),
-        pytest.param(["bucket", "file.txt"], "s3://bucket/file.txt", id="folder_and_file"),
+        pytest.param(
+            ["bucket", "file.txt"], "s3://bucket/file.txt", id="folder_and_file"
+        ),
     ],
 )
 def test_when_s3_path_is_constructed_from_parts_then_absolute_path_is_calculated_properly(
@@ -43,7 +45,9 @@ def test_when_s3_path_is_constructed_from_parts_then_absolute_path_is_calculated
     [
         pytest.param(["folder"], ["folder"], id="only_folder"),
         pytest.param(["file.txt"], ["file.txt"], id="only_file"),
-        pytest.param(["folder", "file.txt"], ["folder", "file.txt"], id="folder_and_file"),
+        pytest.param(
+            ["folder", "file.txt"], ["folder", "file.txt"], id="folder_and_file"
+        ),
     ],
 )
 def test_when_s3_path_is_constructed_from_parts_then_the_resulting_parts_are_the_same(
@@ -76,10 +80,16 @@ def test_when_s3_path_is_constructed_with_invalid_parts_then_validation_error_is
     [
         pytest.param("s3://bucket", ["bucket"], id="bucket"),
         pytest.param("s3://bucket/", ["bucket"], id="bucket_with_trailing_slash"),
-        pytest.param("s3://bucket/file.txt", ["bucket", "file.txt"], id="bucket_with_file"),
-        pytest.param("s3://bucket/folder", ["bucket", "folder"], id="bucket_with_folder"),
         pytest.param(
-            "s3://bucket/folder/", ["bucket", "folder"], id="bucket_with_folder_with_trailing_slash"
+            "s3://bucket/file.txt", ["bucket", "file.txt"], id="bucket_with_file"
+        ),
+        pytest.param(
+            "s3://bucket/folder", ["bucket", "folder"], id="bucket_with_folder"
+        ),
+        pytest.param(
+            "s3://bucket/folder/",
+            ["bucket", "folder"],
+            id="bucket_with_folder_with_trailing_slash",
         ),
         pytest.param(
             "s3://bucket/folder/file.txt",
@@ -88,7 +98,9 @@ def test_when_s3_path_is_constructed_with_invalid_parts_then_validation_error_is
         ),
         pytest.param("folder", ["folder"], id="relative_folder"),
         pytest.param("folder/", ["folder"], id="relative_folder_with_trailing_slash"),
-        pytest.param("folder/file.txt", ["folder", "file.txt"], id="relative_folder_with_file"),
+        pytest.param(
+            "folder/file.txt", ["folder", "file.txt"], id="relative_folder_with_file"
+        ),
     ],
 )
 def test_when_s3_path_is_created_from_path_then_parts_are_parsed_correctly(
@@ -100,12 +112,16 @@ def test_when_s3_path_is_created_from_path_then_parts_are_parsed_correctly(
 @pytest.mark.parametrize(
     "input_str",
     [
-        pytest.param("s3://bucket^with_invalid*name/folder/file.txt", id="invalid_bucket"),
+        pytest.param(
+            "s3://bucket^with_invalid*name/folder/file.txt", id="invalid_bucket"
+        ),
         pytest.param("/folder/file.txt", id="relative_path_but_prefixed_with_slash"),
         pytest.param("s3://bucket/ /file.txt", id="folder_name_is_empty"),
     ],
 )
-def test_when_s3_path_is_created_from_invalid_path_then_validation_error_is_raised(input_str):
+def test_when_s3_path_is_created_from_invalid_path_then_validation_error_is_raised(
+    input_str,
+):
     with pytest.raises(ValueError):
         S3Path(input_str)
 
@@ -140,7 +156,10 @@ def test_when_a_valid_bucket_is_added_to_a_relative_path_then_it_becomes_absolut
 
 
 def test_when_a_valid_bucket_is_added_to_an_absolute_path_then_it_replaces_then_old_one():
-    assert ABSOLUTE_PATH.with_bucket("new-bucket") == "s3://new-bucket/" + ABSOLUTE_PATH.key
+    assert (
+        ABSOLUTE_PATH.with_bucket("new-bucket")
+        == "s3://new-bucket/" + ABSOLUTE_PATH.key
+    )
 
 
 def test_when_an_invalid_bucket_is_added_to_a_path_then_error_is_raised():
@@ -183,11 +202,15 @@ def test_when_path_only_has_bucket_then_name_is_same_as_bucket():
 @pytest.mark.parametrize(
     "starting_path,expected_parent",
     [
-        pytest.param("s3://bucket/folder/file.txt", "s3://bucket/folder/", id="file_path"),
+        pytest.param(
+            "s3://bucket/folder/file.txt", "s3://bucket/folder/", id="file_path"
+        ),
         pytest.param("s3://bucket/folder/", "s3://bucket/", id="folder_path"),
         pytest.param("s3://bucket/", None, id="bucket"),
         pytest.param(
-            "some/relative/folder/file.txt", "some/relative/folder/", id="relative_folder_path"
+            "some/relative/folder/file.txt",
+            "some/relative/folder/",
+            id="relative_folder_path",
         ),
         pytest.param("file.txt", None, id="relative_file_path"),
     ],
@@ -200,7 +223,10 @@ def test_retrieving_parent_of_absolute_path(starting_path, expected_parent):
     "starting_path,path_to_add,expected_path",
     [
         pytest.param(
-            "s3://bucket/folder", "file.txt", "s3://bucket/folder/file.txt", id="file_in_folder"
+            "s3://bucket/folder",
+            "file.txt",
+            "s3://bucket/folder/file.txt",
+            id="file_in_folder",
         ),
         pytest.param(
             "s3://bucket/folder",
@@ -209,7 +235,10 @@ def test_retrieving_parent_of_absolute_path(starting_path, expected_parent):
             id="file_with_prefix_slash_in_folder",
         ),
         pytest.param(
-            "s3://bucket/folder", "folder2", "s3://bucket/folder/folder2", id="folder_in_folder"
+            "s3://bucket/folder",
+            "folder2",
+            "s3://bucket/folder/folder2",
+            id="folder_in_folder",
         ),
         pytest.param(
             "s3://bucket/folder",
@@ -257,10 +286,16 @@ def test_adding_extra_str_path_parts(starting_path, path_to_add, expected_path):
     "starting_path,path_to_add,expected_path",
     [
         pytest.param(
-            "s3://bucket/folder", "file.txt", "s3://bucket/folder/file.txt", id="file_in_folder"
+            "s3://bucket/folder",
+            "file.txt",
+            "s3://bucket/folder/file.txt",
+            id="file_in_folder",
         ),
         pytest.param(
-            "s3://bucket/folder", "folder2", "s3://bucket/folder/folder2", id="folder_in_folder"
+            "s3://bucket/folder",
+            "folder2",
+            "s3://bucket/folder/folder2",
+            id="folder_in_folder",
         ),
         pytest.param(
             "s3://bucket/folder",
