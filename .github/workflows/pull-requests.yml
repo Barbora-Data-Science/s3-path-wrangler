@@ -7,15 +7,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ 3.8, 3.9 ]
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
-        include:
-          - os: ubuntu-latest
-            cache-path: ~/.cache/pypoetry
-          - os: macos-latest
-            cache-path: ~/Library/Caches/pypoetry
-          - os: windows-latest
-            cache-path: ~\AppData\Local\pypoetry\Cache
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -31,11 +23,11 @@ jobs:
         id: cache
         uses: actions/cache@v2
         with:
-          path: ${{ matrix.cache-path }}
+          path: ~/.cache/pypoetry
           # We only want to clear the cache if the dependency specification has changed
-          key: ${{ matrix.os }}-${{ matrix.python-version }}-poetry-${{ hashFiles('pyproject.toml') }}
+          key: ${{ matrix.python-version }}-poetry-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
-            ${{ matrix.os }}-${{ matrix.python-version }}-poetry-
+            ${{ matrix.python-version }}-poetry-
       - name: Install dependencies
         run: poetry install
         if: steps.cache.outputs.cache-hit != 'true'
