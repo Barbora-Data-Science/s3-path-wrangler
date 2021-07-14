@@ -33,9 +33,9 @@ jobs:
         with:
           path: ${{ matrix.cache-path }}
           # We only want to clear the cache if the dependency specification has changed
-          key: ${{ matrix.os }}-poetry-${{ hashFiles('pyproject.toml') }}
+          key: ${{ matrix.os }}-${{ matrix.python-version }}-poetry-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
-            ${{ matrix.os }}-poetry-
+            ${{ matrix.os }}-${{ matrix.python-version }}-poetry-
       - name: Install dependencies
         run: poetry install
         if: steps.cache.outputs.cache-hit != 'true'
