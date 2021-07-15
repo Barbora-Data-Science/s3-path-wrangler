@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "s3-path-wrangler"
-version = "0.4.0"
+version = "0.4.1"
 description = "Provides S3 path manipulation, similar to PurePath in pathlib"
 authors = ["Saulius Beinorius <saulius.beinorius@gmail.com>"]
 license = "Apache 2.0"
