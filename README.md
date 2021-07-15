@@ -1,4 +1,3 @@
-[![License](https://img.shields.io/hexpm/l/s3-path-wrangler)](LICENSE)
 [![Formatter](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Build Status](https://github.com/Barbora-Data-Science/s3-path-wrangler/actions/workflows/main.yml/badge.svg)](https://github.com/Barbora-Data-Science/s3-path-wrangler/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/Barbora-Data-Science/s3-path-wrangler/branch/main/graph/badge.svg?token=MJSSVCSFJV)](https://codecov.io/gh/Barbora-Data-Science/s3-path-wrangler)
