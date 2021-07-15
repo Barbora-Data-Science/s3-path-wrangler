@@ -1,4 +1,4 @@
-name: Run tests on PR
+name: PR Tests
 on: pull_request
 
 jobs:
@@ -32,7 +32,6 @@ jobs:
             ${{ matrix.python-version }}-poetry-
       - name: Install dependencies
         run: poetry install
-        if: steps.cache.outputs.cache-hit != 'true'
       - name: Verify formatting with Black
         run: poetry run black --check .
       - name: Run tests
@@ -43,17 +42,10 @@ jobs:
             --cov-report=xml:pytest/test-coverage-${{ matrix.python-version }}.xml \
             --cov=s3_path_wrangler \
             --verbose
-      - name: Upload test results
-        uses: actions/upload-artifact@v2
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v1
         with:
-          name: test-results-${{ matrix.python-version }}
-          path: pytest/test-results-${{ matrix.python-version }}.xml
-        # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}
-      - name: Upload coverage results
-        uses: actions/upload-artifact@v2
-        with:
-          name: test-coverage-${{ matrix.python-version }}
-          path: pytest/test-coverage-${{ matrix.python-version }}.xml
-        # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}
+          files: ./pytest/test-coverage-${{ matrix.python-version }}.xml
+          flags: unittests
+          fail_ci_if_error: true
+          verbose: true

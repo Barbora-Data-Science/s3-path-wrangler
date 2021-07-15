@@ -1,12 +1,15 @@
-name: Upload package
+name: Tests
 on:
   push:
     branches:
       - main
-    tags:
-      - 'v*.*.*'
+
 jobs:
-  upload-package:
+  ci:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ 3.8, 3.9 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -14,42 +17,38 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: ${{ matrix.python-version }}
       - name: Setup poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
           poetry-version: 1.1.7
       - name: Check pyproject.toml
         run: poetry check --no-interaction
-      - name: Verify versions match
-        run: |
-          POETRY_VERSION=$(poetry version --short)
-          TAG_VERSION=$(git describe HEAD --tags --abbrev=0)
-          echo "version in pyproject.toml: $POETRY_VERSION"
-          echo "git tag: $TAG_VERSION"
-          if [[ "$TAG_VERSION" != "v$POETRY_VERSION" ]]; then exit 1; fi
-        if: startsWith(github.ref, 'refs/tags/')
       - name: Cache dependencies
         id: cache
         uses: actions/cache@v2
         with:
           path: ~/.cache/pypoetry
           # We only want to clear the cache if the dependency specification has changed
-          key: 3.9-poetry-${{ hashFiles('poetry.lock') }}
+          key: ${{ matrix.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
           restore-keys: |
-            3.9-poetry-
+            ${{ matrix.python-version }}-poetry-
       - name: Install dependencies
         run: poetry install
-        if: steps.cache.outputs.cache-hit != 'true'
-      - name: Build package
-        run: poetry build
-      - name: Test Publishing
+      - name: Verify formatting with Black
+        run: poetry run black --check .
+      - name: Run tests
         run: |
-          poetry config repositories.test-pypi https://test.pypi.org/simple
-          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_API_TOKEN }}
-          poetry publish --repository test-pypi
-      - name: Publish to PyPi
-        run: |
-          poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
-          poetry publish
-        if: startsWith(github.ref, 'refs/tags/')
+          poetry run pytest \
+            -o junit_family=xunit2 \
+            --junitxml=pytest/test-results-${{ matrix.python-version }}.xml \
+            --cov-report=xml:pytest/test-coverage-${{ matrix.python-version }}.xml \
+            --cov=s3_path_wrangler \
+            --verbose
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v1
+        with:
+          files: ./pytest/test-coverage-${{ matrix.python-version }}.xml
+          flags: unittests
+          fail_ci_if_error: true
+          verbose: true
