@@ -1,9 +1,19 @@
 [tool.poetry]
 name = "s3-path-wrangler"
-version = "0.4.1"
+version = "0.4.2"
 description = "Provides S3 path manipulation, similar to PurePath in pathlib"
+
 authors = ["Saulius Beinorius <saulius.beinorius@gmail.com>"]
-license = "Apache 2.0"
+maintainers = ["Saulius Beinorius <saulius.beinorius@gmail.com>"]
+
+license = "Apache-2.0"
+readme = "README.md"
+
+homepage = "https://github.com/Barbora-Data-Science/s3-path-wrangler"
+repository = "https://github.com/Barbora-Data-Science/s3-path-wrangler"
+classifiers = [
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"
