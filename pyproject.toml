@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "s3-path-wrangler"
-version = "0.4.2"
+version = "0.4.3"
 description = "Provides S3 path manipulation, similar to PurePath in pathlib"
 
 authors = ["Saulius Beinorius <saulius.beinorius@gmail.com>"]
@@ -16,7 +16,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
