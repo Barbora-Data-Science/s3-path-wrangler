@@ -76,6 +76,19 @@ class S3Path:
         return S3Path(path)
 
     @classmethod
+    def from_bucket(cls, bucket_name: str) -> "S3Path":
+        """Constructs an S3 path pointing to a bucket.
+
+        Args:
+            bucket_name: Name of the bucket. Should not include the 's3://' prefix - use constructor
+                for that instead.
+
+        Returns:
+            An S3 path representation similar to `pathlib.Path`.
+        """
+        return S3Path.from_parts([bucket_name], is_absolute=True)
+
+    @classmethod
     def _is_valid_part(cls, part: str) -> bool:
         """Checks if a single part of a path is valid.
 
