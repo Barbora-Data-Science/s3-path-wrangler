@@ -40,6 +40,10 @@ def test_when_s3_path_is_constructed_from_parts_then_absolute_path_is_calculated
     assert S3Path.from_parts(path_parts, is_absolute=True) == expected_path
 
 
+def test_when_s3_path_is_constructed_from_bucket_then_it_is_absolute():
+    assert S3Path.from_bucket("bucket").is_absolute
+
+
 @pytest.mark.parametrize(
     "input_parts,expected_parts",
     [
@@ -54,6 +58,10 @@ def test_when_s3_path_is_constructed_from_parts_then_the_resulting_parts_are_the
     input_parts, expected_parts
 ):
     assert S3Path.from_parts(input_parts).parts == expected_parts
+
+
+def test_when_s3_path_is_constructed_from_bucket_then_it_only_has_one_part():
+    assert S3Path.from_bucket("bucket").parts == ["bucket"]
 
 
 @pytest.mark.parametrize(
@@ -73,6 +81,11 @@ def test_when_s3_path_is_constructed_with_invalid_parts_then_validation_error_is
 ):
     with pytest.raises(InvalidPathError):
         S3Path.from_parts(input_parts)
+
+
+def test_when_s3_path_is_constructed_from_invalid_bucket_then_validation_error_is_raised():
+    with pytest.raises(InvalidBucketError):
+        S3Path.from_bucket("bucket^with_invalid*name")
 
 
 @pytest.mark.parametrize(
